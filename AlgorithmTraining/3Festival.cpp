@@ -1,5 +1,5 @@
 #include <iostream>
-
+#include <stdio.h>
 #define maxCase	100
 #define	maxN	1000
 
@@ -11,7 +11,7 @@ void Festival()
 	int numCase;	// C <= 100
 	int numN[maxCase];	// 1 <= N <= 1000
 	int numL[maxCase];	// 1 <= L <= N
-	int answer[maxCase];
+	double answer[maxCase];
 
 	scanf("%d", &numCase);
 	// 1. int or char? (value is positive integer <= 100)
@@ -62,28 +62,31 @@ void Festival()
 			Node* prevRowNode = curNodes - maxLen;
 
 			//calculate the initial Node of each row
-			curNodes[0].avgVal = (prevRowNode[0].avgVal + curFest[prevRowNode[0].size]) * prevRowNode[0].size / (prevRowNode[0].size + 1);
+			curNodes[0].avgVal = (prevRowNode[0].avgVal * prevRowNode[0].size + curFest[prevRowNode[0].size]) / (prevRowNode[0].size + 1);
 			curNodes[0].startIdx = 0;
 			curNodes[0].size = prevRowNode[0].size + 1;
 			minAvg = (minAvg > curNodes[0].avgVal) ? curNodes[0].avgVal : minAvg;
 
 			for (int col = 1; col <= row; col++)
 			{
-				curNodes[col].avgVal = (curNodes[col - 1].avgVal - curFest[curNodes[col - 1].startIdx]) * curNodes[col - 1].size / (curNodes[col - 1].size - 1);
+				curNodes[col].avgVal = (curNodes[col - 1].avgVal * curNodes[col - 1].size - curFest[curNodes[col - 1].startIdx]) / (curNodes[col - 1].size - 1);
 				curNodes[col].startIdx = curNodes[col - 1].startIdx + 1;
 				curNodes[col].size = curNodes[col - 1].size - 1;
 				minAvg = (minAvg > curNodes[col].avgVal) ? curNodes[col].avgVal : minAvg;
 			}
 		}
 		answer[i] = minAvg;
+		delete[] pNodes;
 	}
 
 	/* output */
-	// 3. Separate or not the output part with algorithm loop
+	// 3. Separate or not the output part with algorithm loop => separate is faster
 	for (int i = 0; i < numCase; i++)
 	{
-		printf("%lf\n", answer[i]);
+		printf("%.8f\n", answer[i]);
 	}
+
+	delete[] arrFestAll;
 }
 
 int main()
