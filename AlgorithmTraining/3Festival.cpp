@@ -224,13 +224,13 @@ void FestivalTest()
 	delete[] arrFestAll;
 }
 
-int main()
-{
-	Festival();
-	//FestivalTest();
-	system("pause");
-	return 0;
-}
+// int main()
+// {
+// 	Festival();
+// 	//FestivalTest();
+// 	system("pause");
+// 	return 0;
+// }
 
 
 // 	typedef struct _Node

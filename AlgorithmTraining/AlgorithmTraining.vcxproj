@@ -69,6 +69,7 @@
     <ClCompile Include="1Dictionary.cpp" />
     <ClCompile Include="2Fence.cpp" />
     <ClCompile Include="3Festival.cpp" />
+    <ClCompile Include="4NERD2.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Clock.h" />

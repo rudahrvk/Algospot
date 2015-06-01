@@ -24,6 +24,9 @@
     <ClCompile Include="3Festival.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="4NERD2.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Clock.h">
