@@ -35,5 +35,8 @@
     <ClInclude Include="Simulator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="RBTree.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
