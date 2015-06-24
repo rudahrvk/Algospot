@@ -27,15 +27,18 @@
     <ClCompile Include="4NERD2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="5SPKITE.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Clock.h">
+    <ClInclude Include="Clock.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Simulator.h">
+    <ClInclude Include="Simulator.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="RBTree.h">
+    <ClInclude Include="RBTree.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

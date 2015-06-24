@@ -3,7 +3,7 @@
 #include <sstream>
 #include <string>
 
-#include "Clock.h"
+#include "Clock.hpp"
 
 template <class InputType, class OutputType>
 class Simulator

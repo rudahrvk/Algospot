@@ -70,11 +70,12 @@
     <ClCompile Include="2Fence.cpp" />
     <ClCompile Include="3Festival.cpp" />
     <ClCompile Include="4NERD2.cpp" />
+    <ClCompile Include="5SPKITE.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Clock.h" />
-    <ClInclude Include="RBTree.h" />
-    <ClInclude Include="Simulator.h" />
+    <ClInclude Include="Clock.hpp" />
+    <ClInclude Include="RBTree.hpp" />
+    <ClInclude Include="Simulator.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
