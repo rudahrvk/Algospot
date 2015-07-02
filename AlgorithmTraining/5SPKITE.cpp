@@ -39,8 +39,19 @@ inline float GetExtvalCoord(int p1, int p2, int p3, int a1, int a2, int a3, int 
 {
 	return (float)((b1 - a1)*(p1 - a1) + (b2 - a2)*(p2 - a2) + (b3 - a3)*(p3 - a3)) / (GetSquare<int>(b1 - a1) + GetSquare<int>(b2 - a2) + GetSquare<int>(b3 - a3));
 }
-
-
+inline bool GetDiffSignVal(float t, int p1, int p2, int p3, int a1, int a2, int a3, int b1, int b2, int b3)
+{
+	//positive : true, negative or zero : false
+	return ((a1 + t*(b1 - a1) - p1)*(b1 - a1) + (a2 + t*(b2 - a2) - p2)*(b2 - a2) + (a3 + t*(b3 - a3) - p3)*(b3 - a3)) > 0 ? true : false;
+}
+inline float GetDiffVal(float t, int p1, int p2, int p3, int a1, int a2, int a3, int b1, int b2, int b3)
+{
+	float upper = (a1 + t*(b1 - a1) - p1)*(b1 - a1) + (a2 + t*(b2 - a2) - p2)*(b2 - a2) + (a3 + t*(b3 - a3) - p3)*(b3 - a3);
+	float lower = std::sqrt(GetSquare<float>(a1 + t*(b1 - a1) - p1) + GetSquare<float>(a2 + t*(b2 - a2) - p2) + GetSquare<float>(a3 + t*(b3 - a3) - p3));
+	if (lower == 0)
+		return 0;
+	return upper / lower;
+}
 
 int PlanetCoord[100 * 3];
 void SPKITE()
@@ -99,126 +110,135 @@ void SPKITE()
 
 			// find intersection points
 
-			float divRate = 0.01;
-			float err = divRate / 10;
-			for (float t = 0; t <= 1; t += divRate)
-			{
-				std::vector<int> minIdxs;
-				float minDist = std::numeric_limits<float>::max();
-				for (int k = 0; k < numPlanet; k++)
-				{
-					int p1 = PlanetCoord[k * 3];
-					int p2 = PlanetCoord[k * 3 + 1];
-					int p3 = PlanetCoord[k * 3 + 2];
-					float curDistSQ = GetDistSQ<float>(t, p1, p2, p3, oldX, oldY, oldZ, curX, curY, curZ);
-					if (curDistSQ < minDist)
-					{
-						minDist = curDistSQ;
-						minIdxs.clear();
-						minIdxs.push_back(k + 1);
-					}
-					else if (curDistSQ == minDist)
-					{
-						minIdxs.push_back(k + 1);
-					}
-				}
-				minDist = std::sqrt(minDist);
-
-				if (minDist <= refDistance + radius + err)
-				{
-					contactIdx.insert(contactIdx.begin(), minIdxs.begin(), minIdxs.end());
-				}
-			}
-
-// 			float prev_t, cur_t;
-// 			prev_t = 0;
-// 			std::vector<int> prevIdxs;
-// 			std::vector<int> curIdxs;
-// 			int prevIdx;
-// 			prevIdx = minIdx;
-// 			prevIdxs.push_back(minIdx);
-// 			while (1)
+// 			float divRate = 0.01;
+// 			float err = divRate / 10;
+// 			for (float t = 0; t <= 1; t += divRate)
 // 			{
-// 				int p1 = PlanetCoord[(prevIdx - 1) * 3];
-// 				int p2 = PlanetCoord[(prevIdx - 1) * 3 + 1];
-// 				int p3 = PlanetCoord[(prevIdx - 1) * 3 + 2];
-// 
-// 				//find next t (nearest intersection point)
-// 				cur_t = 1;
+// 				std::vector<int> minIdxs;
+// 				float minDist = std::numeric_limits<float>::max();
 // 				for (int k = 0; k < numPlanet; k++)
 // 				{
-// 					int pp1 = PlanetCoord[k * 3];
-// 					int pp2 = PlanetCoord[k * 3 + 1];
-// 					int pp3 = PlanetCoord[k * 3 + 2];
-// 
-// 					float tmp_t = GetIntersection(p1, p2, p3, pp1, pp2, pp3, oldX, oldY, oldZ, curX, curY, curZ);
-// 					if (tmp_t > prev_t && tmp_t < 1 && tmp_t <= cur_t)
+// 					int p1 = PlanetCoord[k * 3];
+// 					int p2 = PlanetCoord[k * 3 + 1];
+// 					int p3 = PlanetCoord[k * 3 + 2];
+// 					float curDistSQ = GetDistSQ<float>(t, p1, p2, p3, oldX, oldY, oldZ, curX, curY, curZ);
+// 					if (curDistSQ < minDist)
 // 					{
-// 						if (tmp_t < cur_t)
-// 						{
-// 							curIdxs.clear();
-// 						}
-// 						cur_t = tmp_t;
-// 						curIdxs.push_back(k + 1);
+// 						minDist = curDistSQ;
+// 						minIdxs.clear();
+// 						minIdxs.push_back(k + 1);
+// 					}
+// 					else if (curDistSQ == minDist)
+// 					{
+// 						minIdxs.push_back(k + 1);
 // 					}
 // 				}
+// 				minDist = std::sqrt(minDist);
 // 
-// 				//find entire contact of prevMin
-// 				for (auto v : prevIdxs)
+// 				if (minDist <= refDistance + radius + err)
 // 				{
-// 					int pp1 = PlanetCoord[(v - 1) * 3];
-// 					int pp2 = PlanetCoord[(v - 1) * 3 + 1];
-// 					int pp3 = PlanetCoord[(v - 1) * 3 + 2];
-// 					float ext_t = GetExtvalCoord(p1, p2, p3, oldX, oldY, oldZ, curX, curY, curZ);
-// 					float ext_dist = std::sqrt(GetDistSQ<float>(ext_t, p1, p2, p3, oldX, oldY, oldZ, curX, curY, curZ));
-// 					if (ext_t < cur_t && ext_t >= 0 && ext_dist <= refDistance + radius)
-// 					{
-// 						contactIdx.push_back(v);
-// 					}
+// 					contactIdx.insert(contactIdx.begin(), minIdxs.begin(), minIdxs.end());
 // 				}
-// 				prevIdxs.clear();
-// 
-// 				if (curIdxs.empty())
-// 				{
-// 					break;
-// 				}
-// 
-// 				int newIdx;
-// 				std::vector<float> vDists;
-// 				float minVal = std::numeric_limits<float>::max();
-// 				for (auto v : curIdxs)
-// 				{
-// 					int pp1 = PlanetCoord[(v - 1) * 3];
-// 					int pp2 = PlanetCoord[(v - 1) * 3 + 1];
-// 					int pp3 = PlanetCoord[(v - 1) * 3 + 2];
-// 					float distVal = GetDistSQ<float>(cur_t + 0.01, pp1, pp2, pp3, oldX, oldY, oldZ, curX, curY, curZ);
-// 					vDists.push_back(distVal);
-// 					if (distVal < minVal)
-// 					{
-// 						newIdx = v;
-// 						minVal = distVal;
-// 					}
-// 				}
-// 				for (int k = 0; k < vDists.size(); k++)
-// 				{
-// 					if (vDists[k] == minVal)
-// 						prevIdxs.push_back(curIdxs[k]);
-// 				}
-// 
-// 				
-// 				int pp1 = PlanetCoord[(curIdxs[0] - 1) * 3];
-// 				int pp2 = PlanetCoord[(curIdxs[0] - 1) * 3 + 1];
-// 				int pp3 = PlanetCoord[(curIdxs[0] - 1) * 3 + 2];
-// 
-// 				float intersectDist = std::sqrt(GetDistSQ<float>(cur_t, pp1, pp2, pp3, oldX, oldY, oldZ, curX, curY, curZ));
-// 				if (intersectDist <= refDistance + radius)
-// 				{
-// 					contactIdx.insert(contactIdx.begin(), curIdxs.begin(), curIdxs.end());
-// 				}
-// 				prev_t = cur_t;
-// 				prevIdx = newIdx;
-// 				curIdxs.clear();
 // 			}
+
+			float prev_t, cur_t;
+			prev_t = 0;
+			std::vector<int> prevIdxs;
+			std::vector<int> curIdxs;
+			prevIdxs.push_back(minIdx);
+			while (1)
+			{
+				if (prevIdxs.empty())
+				{
+					break;
+				}
+
+				int p1 = PlanetCoord[(prevIdxs[0] - 1) * 3];
+				int p2 = PlanetCoord[(prevIdxs[0] - 1) * 3 + 1];
+				int p3 = PlanetCoord[(prevIdxs[0] - 1) * 3 + 2];
+
+				// find the cur t and cur curves (nearest intersection point t)
+				cur_t = 1;
+				for (int k = 0; k < numPlanet; k++)
+				{
+					int pp1 = PlanetCoord[k * 3];
+					int pp2 = PlanetCoord[k * 3 + 1];
+					int pp3 = PlanetCoord[k * 3 + 2];
+
+					float tmp_t = GetIntersection(p1, p2, p3, pp1, pp2, pp3, oldX, oldY, oldZ, curX, curY, curZ);
+					if (tmp_t > prev_t && tmp_t < 1 && tmp_t <= cur_t)
+					{
+						if (tmp_t < cur_t)
+						{
+							curIdxs.clear();
+						}
+						cur_t = tmp_t;
+						curIdxs.push_back(k + 1);
+					}
+				}
+			
+				// check prev curves (duplicate curves)
+				if (GetDiffSignVal(cur_t, p1, p2, p3, oldX, oldY, oldZ, curX, curY, curZ))	//check sign of cur_t
+				{
+					//if positive
+					float ext_t = GetExtvalCoord(p1, p2, p3, oldX, oldY, oldZ, curX, curY, curZ);
+					float ext_dist = std::sqrt(GetDistSQ<float>(ext_t, p1, p2, p3, oldX, oldY, oldZ, curX, curY, curZ));
+					if (/*ext_t < cur_t*/ ext_t >= 0 && ext_dist <= refDistance + radius)
+					{
+						contactIdx.insert(contactIdx.begin(), prevIdxs.begin(), prevIdxs.end());
+					}
+				}
+				else
+				{
+					//if negative or zero
+					float cur_dist = std::sqrt(GetDistSQ<float>(cur_t, p1, p2, p3, oldX, oldY, oldZ, curX, curY, curZ));
+					if (cur_dist <= refDistance + radius)
+					{
+						contactIdx.insert(contactIdx.begin(), prevIdxs.begin(), prevIdxs.end());
+					}
+				}
+				prevIdxs.clear();
+				
+				// cur curve exist?
+				if (curIdxs.empty())
+				{
+					break;
+				}
+
+				// check cur curves of cur_t
+				int pp1 = PlanetCoord[(curIdxs[0] - 1) * 3];
+				int pp2 = PlanetCoord[(curIdxs[0] - 1) * 3 + 1];
+				int pp3 = PlanetCoord[(curIdxs[0] - 1) * 3 + 2];
+
+				float intersectDist = std::sqrt(GetDistSQ<float>(cur_t, pp1, pp2, pp3, oldX, oldY, oldZ, curX, curY, curZ));
+				if (intersectDist <= refDistance + radius)
+				{
+					contactIdx.insert(contactIdx.begin(), curIdxs.begin(), curIdxs.end());
+				}
+
+				// find next loop prevIdxs (from curIdxs)
+				float minGradient = std::numeric_limits<float>::max();
+				for (auto v : curIdxs)
+				{
+					int pp1 = PlanetCoord[(v - 1) * 3];
+					int pp2 = PlanetCoord[(v - 1) * 3 + 1];
+					int pp3 = PlanetCoord[(v - 1) * 3 + 2];
+					float diffVal = GetDiffVal(cur_t, pp1, pp2, pp3, oldX, oldY, oldZ, curX, curY, curZ);
+
+					if (diffVal < minGradient)
+					{
+						minGradient = diffVal;
+						prevIdxs.clear();
+						prevIdxs.push_back(v);
+					}
+					else if (diffVal == minGradient)
+					{
+						prevIdxs.push_back(v);
+					}
+				}
+				prev_t = cur_t;
+				curIdxs.clear();
+			}
 
 			oldX = curX;
 			oldY = curY;
@@ -227,10 +247,10 @@ void SPKITE()
 
 		std::sort(contactIdx.begin(), contactIdx.end());
 		contactIdx.erase(std::unique(contactIdx.begin(), contactIdx.end()), contactIdx.end());
-		printf("%d ", contactIdx.size());
+		printf("%d", contactIdx.size());
 		for (int j = 0; j < contactIdx.size(); j++)
 		{
-			printf("%d ", contactIdx[j]);
+			printf(" %d", contactIdx[j]);
 		}
 		printf("\n");
 	}
